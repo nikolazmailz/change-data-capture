@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: change-data-capture-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/testdb   # или H2, если тесты
+    driver-class-name: org.postgresql.Driver
+    username: postgresql
+    password: postgresql
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/testdb
+    username: postgresql
+    password: postgresql
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+
+server:
+  # Порт сервера WebFlux
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    root: INFO
+    ru.app: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+app:
+  generator:
+    # Откуда читать строки для генерации новостей
+    news-file: classpath:news.txt

@@ -1,0 +1,51 @@
+# Gradle
+.gradle/
+build/
+
+# Kotlin/Java
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ IDEA
+*.iml
+.idea/
+out/
+
+# Eclipse
+*.classpath
+*.project
+.settings/
+
+# VS Code
+.vscode/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+*.tmp
+*.temp
+
+# Spring Boot devtools
+spring-devtools.properties
+
+# Testcontainers
+testcontainers.properties
+
+# Docker
+docker-compose.override.yml
+
+# R2DBC migrations (если генерируются автоматически)
+migration/generated/
+
+# Application properties overrides
+# При желании можно игнорировать локальные настройки
+application-local.yml

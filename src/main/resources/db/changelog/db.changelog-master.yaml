@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: 0001-create-news-table.yaml
+      relativeToChangelogFile: true
