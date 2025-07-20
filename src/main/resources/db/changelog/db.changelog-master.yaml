@@ -2,3 +2,9 @@ databaseChangeLog:
   - include:
       file: 0001-create-news-table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 0002-outbox-event.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 0003-publish-outbox-function-and-trigger.xml
+      relativeToChangelogFile: true

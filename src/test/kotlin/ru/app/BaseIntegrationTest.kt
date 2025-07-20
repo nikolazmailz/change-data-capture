@@ -11,7 +11,6 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 
-//@ExtendWith(SpringExtension::class)
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     properties = [
@@ -24,10 +23,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 abstract class BaseIntegrationTest(body: ShouldSpec.() -> Unit = {}) : ShouldSpec(body) {
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
-
-//    init {
-//        extensions(SpringExtension)
-//    }
 
     companion object {
 

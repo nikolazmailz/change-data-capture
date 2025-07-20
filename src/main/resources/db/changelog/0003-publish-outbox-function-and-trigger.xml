@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+       http://www.liquibase.org/xml/ns/dbchangelog
+       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0003-publish-outbox-function-and-trigger" author="yourname" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="outbox_event"/>
+        </preConditions>
+
+        <!-- 1. Создаем или обновляем функцию -->
+        <sql splitStatements="false" stripComments="false">
+            <![CDATA[
+            CREATE OR REPLACE FUNCTION fn_publish_outbox_event()
+              RETURNS trigger
+              LANGUAGE plpgsql
+            AS $$
+            DECLARE
+              v_payload JSONB;
+              v_event_id UUID := gen_random_uuid();
+            BEGIN
+              IF TG_OP = 'DELETE' THEN
+                v_payload := to_jsonb(OLD);
+              ELSE
+                v_payload := to_jsonb(NEW);
+              END IF;
+
+              INSERT INTO outbox_event(
+                id,
+                aggregate_id,
+                aggregate_type,
+                event_type,
+                payload
+              ) VALUES (
+                v_event_id,
+                COALESCE(NEW.id, OLD.id),
+                TG_TABLE_NAME,
+                TG_OP,
+                v_payload
+              );
+
+              IF TG_OP = 'DELETE' THEN
+                RETURN OLD;
+              ELSE
+                RETURN NEW;
+              END IF;
+            END;
+            $$;
+            ]]>
+        </sql>
+
+        <!-- 2. Создаем триггер -->
+        <sql>
+            <![CDATA[
+            DROP TRIGGER IF EXISTS trg_publish_outbox ON news;
+            CREATE TRIGGER trg_publish_outbox
+              AFTER INSERT OR UPDATE OR DELETE
+              ON news
+              FOR EACH ROW
+              EXECUTE FUNCTION fn_publish_outbox_event();
+            ]]>
+        </sql>
+
+        <rollback>
+            <sql>
+                <![CDATA[
+                DROP TRIGGER IF EXISTS trg_publish_outbox ON news;
+                DROP FUNCTION IF EXISTS fn_publish_outbox_event();
+                ]]>
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

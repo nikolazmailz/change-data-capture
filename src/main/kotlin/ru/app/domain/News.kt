@@ -14,10 +14,10 @@ data class News(
     private val id: UUID,
 
     @Column("title")
-    val title: String,
+    var title: String,
 
     @Column("text")
-    val text: String,
+    var text: String,
 
     @Column("creator_id")
     val creatorId: UUID,
