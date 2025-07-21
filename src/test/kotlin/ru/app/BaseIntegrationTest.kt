@@ -6,6 +6,7 @@ import io.kotest.extensions.spring.SpringExtension
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -16,7 +17,9 @@ import org.testcontainers.junit.jupiter.Testcontainers
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
+    classes = [TestWebClientConfig::class],
     properties = [
+        "spring.main.allow-bean-definition-overriding=true",
         "logging.level.liquibase=TRACE",
         "logging.level.org.springframework.boot.autoconfigure.liquibase=TRACE"
     ]
@@ -27,25 +30,20 @@ abstract class BaseIntegrationTest(body: ShouldSpec.() -> Unit = {}) : ShouldSpe
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
-    @Bean
-    fun webClient(): WebClient =
-        WebClient.builder()
-            .baseUrl(mockServer.url("/").toString())
-            .build()
+//    @Bean
+//    @Primary
+//    fun webClient(): WebClient =
+//        WebClient.builder()
+//            .baseUrl(mockServer.url("/").toString().removeSuffix("/"))
+//            .build()
 
     companion object {
 
-        @JvmStatic
-        val mockServer = MockWebServer().apply { start() }
+//        @JvmStatic
+//        val mockServer = MockWebServer().apply { start() }
 
         @Container
         private val postgres = PostgreSQLContainer<Nothing>("postgres:15").apply {
-            withCommand(
-                "postgres",
-                "-c", "wal_level=logical",
-                "-c", "max_replication_slots=10",
-                "-c", "max_wal_senders=10"
-            )
             withDatabaseName("testdb")
             withUsername("postgresql")
             withPassword("postgresql")

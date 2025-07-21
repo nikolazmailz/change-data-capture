@@ -5,8 +5,10 @@ import io.kotest.matchers.shouldBe
 import okhttp3.mockwebserver.MockResponse
 import org.springframework.beans.factory.annotation.Autowired
 import ru.app.BaseIntegrationTest
+import ru.app.TestWebClientConfig.Companion.mockServer
 import ru.app.domain.NewsRepository
 import ru.app.domain.OutboxEventRepository
+import ru.app.domain.StatusType
 import java.time.Duration
 
 class NewsGeneratorIntegrationTest: BaseIntegrationTest() {
@@ -27,8 +29,7 @@ class NewsGeneratorIntegrationTest: BaseIntegrationTest() {
 
         should("start generator and save news to Postgres") {
             mockServer.enqueue(MockResponse().setResponseCode(200))
-            mockServer.enqueue(MockResponse().setResponseCode(200))
-            mockServer.enqueue(MockResponse().setResponseCode(200))
+            mockServer.enqueue(MockResponse().setResponseCode(404))
             // ждём немного дольше 1 интераций
             Thread.sleep(Duration.ofSeconds(5).toMillis())
             val count = newsRepository.count().block()
@@ -40,15 +41,18 @@ class NewsGeneratorIntegrationTest: BaseIntegrationTest() {
             blockFirst.text = "new text"
             newsRepository.save(blockFirst).block()
 
-            Thread.sleep(Duration.ofSeconds(5).toMillis())
+            Thread.sleep(Duration.ofSeconds(3).toMillis())
 
             val outboxCount = outboxEventRepository.count().block()
             outboxCount!! shouldBeGreaterThan 0L
 
-            val idFirst = blockFirst.id
-            val outbox = outboxEventRepository.findAll().blockLast()
-            outbox.aggregateId shouldBe idFirst
+            val outboxFirst = outboxEventRepository.findAll().blockFirst()!!
+            outboxFirst.status shouldBe StatusType.SENT
 
+            val idFirst = blockFirst.id
+            val outboxLast = outboxEventRepository.findAll().blockLast()!!
+            outboxLast.aggregateId shouldBe idFirst
+            outboxLast.status shouldBe StatusType.FAILED
         }
     }
 

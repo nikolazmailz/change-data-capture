@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient
 class AppConfig {
 
     @Bean
-    fun openSearchWebClient(): WebClient =
+    fun webClient(): WebClient =
         WebClient.builder()
             .baseUrl("http://localhost:9200") // URL к OpenSearch
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_NDJSON_VALUE)

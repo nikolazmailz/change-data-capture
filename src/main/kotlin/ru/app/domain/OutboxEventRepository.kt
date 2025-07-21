@@ -23,14 +23,8 @@ interface OutboxEventRepository: R2dbcRepository<OutboxEvent, UUID>  {
       UPDATE outbox_event
          SET status = :status,
              sent_at = :sentAt
-       WHERE id = ANY(:ids)
-    """)
-    fun updateStatusBulk(ids: List<UUID>, status: StatusType, sentAt: Instant?): Mono<Int>
-
-    @Query("""
-      UPDATE outbox_event
-         SET status = :status
        WHERE id = ANY(:ids::uuid[])
     """)
-    fun updateStatusBulkError(ids: Array<UUID>, status: String): Mono<Int>
+    fun updateStatusBulk(ids: Array<UUID>, status: StatusType, sentAt: Instant?): Mono<Int>
+
 }
