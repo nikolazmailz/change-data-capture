@@ -3,10 +3,13 @@ package ru.app
 import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.extensions.spring.SpringExtension
+import okhttp3.mockwebserver.MockWebServer
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
+import org.springframework.web.reactive.function.client.WebClient
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -24,10 +27,25 @@ abstract class BaseIntegrationTest(body: ShouldSpec.() -> Unit = {}) : ShouldSpe
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
 
+    @Bean
+    fun webClient(): WebClient =
+        WebClient.builder()
+            .baseUrl(mockServer.url("/").toString())
+            .build()
+
     companion object {
+
+        @JvmStatic
+        val mockServer = MockWebServer().apply { start() }
 
         @Container
         private val postgres = PostgreSQLContainer<Nothing>("postgres:15").apply {
+            withCommand(
+                "postgres",
+                "-c", "wal_level=logical",
+                "-c", "max_replication_slots=10",
+                "-c", "max_wal_senders=10"
+            )
             withDatabaseName("testdb")
             withUsername("postgresql")
             withPassword("postgresql")

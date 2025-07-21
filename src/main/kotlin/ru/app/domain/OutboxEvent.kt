@@ -23,6 +23,12 @@ data class OutboxEvent(
     @Column("payload")
     val payload: String,
 
+    @Column("status")
+    val status: StatusType,
+
     @Column("created_at")
-    val createdAt: Instant = Instant.now()
+    val createdAt: Instant = Instant.now(),
+
+    @Column("sent_at")
+    val sentAt: Instant? = null
 )

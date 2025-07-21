@@ -30,6 +30,7 @@ val testcontainersVersion = "1.19.8"
 dependencies {
     /* --- Core & WebFlux --- */
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("io.projectreactor:reactor-core")
 
     /* --- Persistence --- */
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
@@ -39,6 +40,13 @@ dependencies {
 //    implementation("org.springframework.boot:spring-boot-starter-liquibase")
     runtimeOnly("org.liquibase:liquibase-core")
     runtimeOnly("org.postgresql:postgresql")
+
+    // debezium
+//    implementation("io.debezium:debezium-embedded:3.2.0.Final")
+//    implementation("io.debezium:debezium-connector-postgres:3.2.0.Final")
+
+    // jackson
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     /* --- Observability (optional) --- */
     implementation("io.micrometer:micrometer-observation")
@@ -57,6 +65,10 @@ dependencies {
 //    testImplementation(platform("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}"))
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+
+    // MockWebServer
+    testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
 tasks.withType<KotlinCompile> {
